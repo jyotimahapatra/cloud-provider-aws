@@ -40,6 +40,7 @@ WORKDIR /build
 COPY go.mod go.sum ./
 COPY cmd/ cmd/
 COPY pkg/ pkg/
+COPY vendor/ vendor/
 RUN GO111MODULE=on CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOPROXY=${GOPROXY} \
 		go build \
 		-trimpath \

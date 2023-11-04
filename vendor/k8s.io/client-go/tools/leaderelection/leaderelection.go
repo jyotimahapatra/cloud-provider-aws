@@ -66,6 +66,7 @@ import (
 	rl "k8s.io/client-go/tools/leaderelection/resourcelock"
 	"k8s.io/klog/v2"
 	"k8s.io/utils/clock"
+	"strconv"
 )
 
 const (
@@ -154,6 +155,8 @@ type LeaderElectionConfig struct {
 
 	// Name is the name of the resource lock for debugging
 	Name string
+
+	EvictionOptions map[string]string
 }
 
 // LeaderCallbacks are callbacks that are triggered during certain
@@ -322,6 +325,30 @@ func (le *LeaderElector) tryAcquireOrRenew(ctx context.Context) bool {
 
 	// 1. obtain or create the ElectionRecord
 	oldLeaderElectionRecord, oldLeaderElectionRawRecord, err := le.config.Lock.Get(ctx)
+	if expiryTimeEpochStr, ok := oldLeaderElectionRecord.Labels["leaderelection.kubernetes.io/eviction-expiry-epoch"]; ok {
+		klog.V(4).Infof("Time %v", expiryTimeEpochStr)
+		if expiryTime, err := strconv.ParseInt(expiryTimeEpochStr, 10, 64); err == nil {
+			if expiryTime > time.Now().UTC().Unix() {
+				for k, v := range le.config.EvictionOptions {
+					klog.V(4).Infof("Comparing %s %s", k, v)
+					if t, ok := oldLeaderElectionRecord.Labels[k]; ok {
+						klog.V(4).Infof("Found Label %s %s", k, v)
+						if t == v {
+							klog.V(4).Infof("Label value matches")
+							return false
+						} else {
+							klog.V(4).Infof("Label value does not match")
+						}
+					}
+				}
+			} else {
+				klog.V(4).Infof("Time expired")
+			}
+		} else {
+			klog.V(4).Infof("Time parse err: %v", err)
+		}
+	}
+
 	if err != nil {
 		if !errors.IsNotFound(err) {
 			klog.Errorf("error retrieving resource lock %v: %v", le.config.Lock.Describe(), err)

@@ -50,4 +50,5 @@ func BindLeaderElectionFlags(l *config.LeaderElectionConfiguration, fs *pflag.Fl
 	fs.StringVar(&l.ResourceNamespace, "leader-elect-resource-namespace", l.ResourceNamespace, ""+
 		"The namespace of resource object that is used for locking during "+
 		"leader election.")
+	fs.StringToStringVar(&l.EvictionTags, "eviction-tags", l.EvictionTags, "Eviction Tags in a form of key=value.")
 }

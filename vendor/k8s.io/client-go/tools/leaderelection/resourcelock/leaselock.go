@@ -44,7 +44,7 @@ func (ll *LeaseLock) Get(ctx context.Context) (*LeaderElectionRecord, []byte, er
 		return nil, nil, err
 	}
 	ll.lease = lease
-	record := LeaseSpecToLeaderElectionRecord(&ll.lease.Spec)
+	record := LeaseSpecToLeaderElectionRecord(&ll.lease.Spec, ll.lease.Labels)
 	recordByte, err := json.Marshal(*record)
 	if err != nil {
 		return nil, nil, err
@@ -105,7 +105,7 @@ func (ll *LeaseLock) Identity() string {
 	return ll.LockConfig.Identity
 }
 
-func LeaseSpecToLeaderElectionRecord(spec *coordinationv1.LeaseSpec) *LeaderElectionRecord {
+func LeaseSpecToLeaderElectionRecord(spec *coordinationv1.LeaseSpec, labels map[string]string) *LeaderElectionRecord {
 	var r LeaderElectionRecord
 	if spec.HolderIdentity != nil {
 		r.HolderIdentity = *spec.HolderIdentity
@@ -121,6 +121,9 @@ func LeaseSpecToLeaderElectionRecord(spec *coordinationv1.LeaseSpec) *LeaderElec
 	}
 	if spec.RenewTime != nil {
 		r.RenewTime = metav1.Time{Time: spec.RenewTime.Time}
+	}
+	if labels != nil {
+		r.Labels = labels
 	}
 	return &r
 

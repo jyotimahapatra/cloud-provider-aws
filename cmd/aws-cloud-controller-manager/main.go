@@ -26,6 +26,10 @@ limitations under the License.
 package main
 
 import (
+	"math/rand"
+	"os"
+	"time"
+
 	"k8s.io/apimachinery/pkg/util/wait"
 	cloudprovider "k8s.io/cloud-provider"
 	"k8s.io/cloud-provider-aws/pkg/controllers/tagging"
@@ -38,9 +42,6 @@ import (
 	_ "k8s.io/component-base/metrics/prometheus/clientgo" // for client metric registration
 	_ "k8s.io/component-base/metrics/prometheus/version"  // for version metric registration
 	"k8s.io/klog/v2"
-	"math/rand"
-	"os"
-	"time"
 
 	cloudcontrollerconfig "k8s.io/cloud-provider/app/config"
 )

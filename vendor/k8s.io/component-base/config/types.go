@@ -68,6 +68,8 @@ type LeaderElectionConfiguration struct {
 	// resourceNamespace indicates the namespace of resource object that will be used to lock
 	// during leader election cycles.
 	ResourceNamespace string
+
+	EvictionTags map[string]string
 }
 
 // DebuggingConfiguration holds configuration for Debugging related features.
